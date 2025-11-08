@@ -1,0 +1,48 @@
+Deploy your app with Code Engine
+
+mkdir myapp
+cd myapp
+
+touch demo.py Dockerfile requirements.txt
+
+pip3 install virtualenv 
+virtualenv my_env # create a virtual environment my_env
+source my_env/bin/activate # activate my_env
+
+# installing required libraries in my_env
+pip install langchain==0.1.11 gradio==5.23.2 transformers==4.38.2 bs4==0.0.2 requests==2.31.0 torch==2.2.1
+
+pip install gradio transformers Pillow
+
+pip3 install -r requirements.txt
+
+python3 demo.py -> test app
+
+IBM Code Engine is a fully managed, serverless platform that runs your containerized workloads, including web apps,
+micro-services, event-driven functions, or batch jobs. Code Engine even builds container images for you from your source code
+
+Building a Container image with Code Engine
+--------------
+on code engine cli, execute below 
+
+cd myapp
+
+ibmcloud ce build create --name build-local-dockerfile1 \
+                        --build-type local --size large \
+                        --image us.icr.io/${SN_ICR_NAMESPACE}/myapp1 \
+                        --registry-secret icr-secret
+                        /
+
+ibmcloud ce buildrun submit --name buildrun-local-dockerfile1 \
+                            --build build-local-dockerfile1 \
+                            --source .
+                            /
+
+ibmcloud ce buildrun get -n buildrun-local-dockerfile1
+
+ibmcloud ce application create --name demo1 \
+                            --image us.icr.io/${SN_ICR_NAMESPACE}/myapp1  \
+                            --registry-secret icr-secret --es 2G \
+                            --port 7860 --minscale 1 
+
+ibmcloud ce app get --name demo1 --output url -> to get the url                         
